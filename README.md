@@ -1,3 +1,5 @@
+
+
 # Superpowers for GitHub Copilot
 
 A complete software development workflow system for GitHub Copilot in VS Code, built on composable "skills" that enforce best practices for brainstorming, planning, TDD, debugging, and code review.
@@ -107,7 +109,7 @@ Skills were originally written for Claude Code. Copilot equivalents:
 | `Task` (dispatch subagent) | `runSubagent` |
 | `TodoWrite` (task tracking) | `manage_todo_list` |
 | `Skill` (invoke a skill) | `read_file` on the SKILL.md path |
-| `Read` / `Write` / `Edit` | `read_file` / `create_file` / `replace_string_in_file` |
+| `Read` / `Write` / `Edit` | `read_file` / `create_file` / `replace_string_in_file` or `multi_replace_string_in_file` |
 | `Bash` (run commands) | `run_in_terminal` |
 
 Full mapping: [skills/using-superpowers/references/copilot-tools.md](skills/using-superpowers/references/copilot-tools.md)
