@@ -1,150 +1,99 @@
 # Superpowers for GitHub Copilot
 
-A complete software development workflow system for GitHub Copilot in VS Code, built on composable "skills" that enforce best practices for brainstorming, planning, TDD, debugging, and code review.
+A maintained GitHub Copilot adaptation of [obra/superpowers](https://github.com/obra/superpowers), Jesse Vincent's structured software-development workflow system.
 
-## How it works
+This fork packages the upstream skill model for GitHub Copilot in VS Code. It adds project-scoped installers, reusable prompt files, and an explicit mapping from the tool names used by the upstream skills to Copilot agent-mode tools.
 
-When you fire up Copilot, it doesn't just jump into writing code. Instead, it steps back and asks you what you're really trying to do.
+## What It Provides
 
-Once it's teased a spec out of the conversation, it shows it to you in chunks short enough to actually read and digest.
+- 14 composable skills for discovery, planning, implementation, debugging, review, and branch completion.
+- PowerShell and Bash installers that preserve existing project guidance.
+- Four prompt files for common entry points: brainstorm, plan, execute, and debug.
+- A Copilot-specific tool mapping for skills originally written for Claude Code.
+- A repeatable uninstall path that removes only the managed Superpowers block and prompt files.
 
-After you've signed off on the design, Copilot puts together an implementation plan that's clear enough for an enthusiastic junior engineer to follow. It emphasizes true red/green TDD, YAGNI, and DRY.
+The installer changes the project in which it is run. It does not install VS Code, enable GitHub Copilot, modify global Copilot settings, or execute a skill automatically.
 
-Then it launches a *subagent-driven-development* process, dispatching agents to work through each engineering task, inspecting and reviewing their work, and continuing forward.
+## Quick Start
 
-Skills trigger automatically — your coding agent just has Superpowers.
+### Windows PowerShell
 
-## Quick Install
-
-### Option 1: Installer Script (recommended)
-
-First, clone the repo once:
-```bash
-git clone https://github.com/autovant/superpowers.git ~/.copilot/superpowers
-```
-
-Then run in any project to add superpowers:
-
-**PowerShell (Windows):**
 ```powershell
+git clone https://github.com/autovant/superpowers.git "$env:USERPROFILE\.copilot\superpowers"
+Set-Location path\to\your-project
 & "$env:USERPROFILE\.copilot\superpowers\install.ps1"
 ```
 
-**Bash (macOS/Linux):**
+### macOS or Linux
+
 ```bash
+git clone https://github.com/autovant/superpowers.git ~/.copilot/superpowers
+cd path/to/your-project
 ~/.copilot/superpowers/install.sh
 ```
 
-### Option 2: Manual Setup
+The installer creates or updates `.github/copilot-instructions.md` and copies four prompt files into `.github/prompts/`. Re-running it updates the managed block without duplicating it.
 
-See [.copilot/INSTALL.md](.copilot/INSTALL.md) for step-by-step manual instructions.
+Start a new Copilot chat in agent mode and try:
 
-### Verify
+- `/brainstorm` for design discovery.
+- `/write-plan` for an implementation plan.
+- `/execute-plan` to work through a written plan.
+- `/debug` for systematic diagnosis.
 
-Start a new Copilot chat and ask: "help me plan this feature" or "let's debug this issue". The agent should read and follow the relevant superpowers skill.
+See the [installation guide](.copilot/INSTALL.md) for manual setup, updating, verification, and uninstall instructions.
 
-**Detailed docs:** [docs/README.copilot.md](docs/README.copilot.md)
+## Workflow
 
-## The Basic Workflow
+1. `brainstorming` turns an initial request into a reviewed design.
+2. `using-git-worktrees` prepares an isolated branch and verifies the starting state.
+3. `writing-plans` decomposes the design into testable implementation tasks.
+4. `executing-plans` or `subagent-driven-development` carries out the plan.
+5. `test-driven-development` keeps implementation in a red-green-refactor loop.
+6. `requesting-code-review` and `receiving-code-review` structure review and response.
+7. `verification-before-completion` requires fresh evidence before completion claims.
+8. `finishing-a-development-branch` closes the branch with an explicit integration decision.
 
-1. **brainstorming** — Refines rough ideas through questions, explores alternatives, presents design in sections for validation.
+These are instruction assets, not runtime enforcement. Their effectiveness depends on the Copilot model, available tools, workspace permissions, and the quality of the surrounding project context.
 
-2. **using-git-worktrees** — Creates isolated workspace on new branch, runs project setup, verifies clean test baseline.
+## Skill Library
 
-3. **writing-plans** — Breaks work into bite-sized tasks (2-5 minutes each). Every task has exact file paths, complete code, verification steps.
+| Area | Skills |
+| --- | --- |
+| Design and planning | `brainstorming`, `writing-plans` |
+| Implementation | `executing-plans`, `subagent-driven-development`, `dispatching-parallel-agents` |
+| Quality | `test-driven-development`, `systematic-debugging`, `verification-before-completion` |
+| Review and delivery | `requesting-code-review`, `receiving-code-review`, `using-git-worktrees`, `finishing-a-development-branch` |
+| System guidance | `using-superpowers`, `writing-skills` |
 
-4. **subagent-driven-development** or **executing-plans** — Dispatches fresh subagent per task with two-stage review, or executes in batches with human checkpoints.
+## Copilot Tool Mapping
 
-5. **test-driven-development** — Enforces RED-GREEN-REFACTOR: write failing test, watch it fail, write minimal code, watch it pass, commit.
+| Skill reference | Copilot equivalent |
+| --- | --- |
+| `Task` | `runSubagent` |
+| `TodoWrite` | `manage_todo_list` |
+| `Skill` | `read_file` on the relevant `SKILL.md` |
+| `Read` | `read_file` |
+| `Write` | `create_file` |
+| `Edit` | `replace_string_in_file` or `multi_replace_string_in_file` |
+| `Bash` | `run_in_terminal` |
 
-6. **requesting-code-review** — Reviews against plan, reports issues by severity. Critical issues block progress.
+The full compatibility notes are in [Copilot tools](skills/using-superpowers/references/copilot-tools.md) and the [Copilot usage guide](docs/README.copilot.md).
 
-7. **finishing-a-development-branch** — Verifies tests, presents options (merge/PR/keep/discard), cleans up worktree.
+## Maintenance
 
-**The agent checks for relevant skills before any task.** Mandatory workflows, not suggestions.
+Run the local quality suite before proposing a change:
 
-## Prompt Commands
-
-After installation, use these in Copilot chat:
-
-| Command | Purpose |
-|---------|---------|
-| `/brainstorm` | Start a Socratic design session |
-| `/write-plan` | Create a detailed implementation plan |
-| `/execute-plan` | Execute a plan step by step |
-| `/debug` | Start systematic root-cause debugging |
-
-## Skills Library
-
-**Testing**
-- **test-driven-development** — RED-GREEN-REFACTOR cycle
-
-**Debugging**
-- **systematic-debugging** — 4-phase root cause process
-- **verification-before-completion** — Ensure it's actually fixed
-
-**Collaboration**
-- **brainstorming** — Socratic design refinement
-- **writing-plans** — Detailed implementation plans
-- **executing-plans** — Batch execution with checkpoints
-- **dispatching-parallel-agents** — Concurrent subagent workflows
-- **requesting-code-review** — Pre-review checklist
-- **receiving-code-review** — Responding to feedback
-- **using-git-worktrees** — Parallel development branches
-- **finishing-a-development-branch** — Merge/PR decision workflow
-- **subagent-driven-development** — Fast iteration with two-stage review
-
-**Meta**
-- **writing-skills** — Create new skills following best practices
-- **using-superpowers** — Introduction to the skills system
-
-## Tool Mapping
-
-Skills were originally written for Claude Code. Copilot equivalents:
-
-| Skill references | Copilot equivalent |
-|-----------------|-------------------|
-| `Task` (dispatch subagent) | `runSubagent` |
-| `TodoWrite` (task tracking) | `manage_todo_list` |
-| `Skill` (invoke a skill) | `read_file` on the SKILL.md path |
-| `Read` / `Write` / `Edit` | `read_file` / `create_file` / `replace_string_in_file` |
-| `Bash` (run commands) | `run_in_terminal` |
-
-Full mapping: [skills/using-superpowers/references/copilot-tools.md](skills/using-superpowers/references/copilot-tools.md)
-
-## Updating
-
-```bash
-cd ~/.copilot/superpowers && git pull
-```
-
-Then re-run the installer in your project to update prompt files.
-
-## Uninstalling
-
-Run the installer with `-Uninstall` / `--uninstall`:
-
-**PowerShell:**
 ```powershell
-& "$env:USERPROFILE\.copilot\superpowers\install.ps1" -Uninstall
+pwsh -NoProfile -File tests/test_repository.ps1
 ```
 
-**Bash:**
-```bash
-~/.copilot/superpowers/install.sh --uninstall
-```
+The suite checks documentation links and code fences, installer syntax, PowerShell install/update/uninstall behavior, prompt-file delivery, and preservation of upstream attribution. It does not depend on GitHub Actions.
 
-## Philosophy
+Contribution expectations are documented in [CONTRIBUTING.md](CONTRIBUTING.md). Security reports should follow [SECURITY.md](SECURITY.md).
 
-- **Test-Driven Development** — Write tests first, always
-- **Systematic over ad-hoc** — Process over guessing
-- **Complexity reduction** — Simplicity as primary goal
-- **Evidence over claims** — Verify before declaring success
+## Upstream and License
 
-## Credits
+This repository is a maintained fork of [obra/superpowers](https://github.com/obra/superpowers) by Jesse Vincent. The upstream authorship and MIT license are preserved. Copilot-specific changes in this fork do not imply authorship of the upstream workflow or skills.
 
-Forked from [obra/superpowers](https://github.com/obra/superpowers) by Jesse Vincent.
-
-## License
-
-MIT License — see LICENSE file for details
+See [LICENSE](LICENSE) for the license text.
