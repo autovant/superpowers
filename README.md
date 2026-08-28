@@ -1,5 +1,9 @@
 # Superpowers for GitHub Copilot
 
+[![Tests](https://github.com/autovant/superpowers/actions/workflows/tests.yml/badge.svg)](https://github.com/autovant/superpowers/actions/workflows/tests.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Adapted from obra/superpowers](https://img.shields.io/badge/adapted%20from-obra%2Fsuperpowers-blue)](https://github.com/obra/superpowers)
+
 A maintained GitHub Copilot adaptation of [obra/superpowers](https://github.com/obra/superpowers), Jesse Vincent's structured software-development workflow system.
 
 This fork packages the upstream skill model for GitHub Copilot in VS Code. It adds project-scoped installers, reusable prompt files, and an explicit mapping from the tool names used by the upstream skills to Copilot agent-mode tools.
