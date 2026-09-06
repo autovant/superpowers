@@ -6,9 +6,20 @@ on:
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  # One run per workflow per branch. A new push to a pull request cancels the
+  # superseded run instead of leaving two of them burning runner minutes.
+  # Pushes to a long-lived branch are left to finish, so its CI record is whole.
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   contents: read
 
+# This repository is PUBLIC, so GitHub-hosted runners are free and unmetered
+# here - there is nothing to save by moving off them. It deliberately does NOT
+# read the CI_RUNNER variable the private repositories use: a self-hosted runner
+# on a public repository would execute code from any fork's pull request.
 jobs:
   repository-tests:
     name: Repository test suite
