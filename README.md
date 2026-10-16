@@ -4,7 +4,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Adapted from obra/superpowers](https://img.shields.io/badge/adapted%20from-obra%2Fsuperpowers-blue)](https://github.com/obra/superpowers)
 
-Jesse Vincent's Superpowers skill library, installed into any project as GitHub Copilot custom instructions, so agent mode brainstorms, plans, tests first, debugs, verifies and asks for review before it calls work done.
+Jesse Vincent's Superpowers skill library, installed into any project as GitHub Copilot custom instructions, so agent mode is told to brainstorm, plan, test first, debug, verify and ask for review before it calls work done.
+
+This repository adds the Copilot layer: project-scoped installers for PowerShell and Bash, four Copilot prompt files, a Claude Code to Copilot tool-name mapping, and a CI test suite. The details are under [What's different from upstream](#whats-different-from-upstream).
 
 > **Credit.** The workflow and the skills are the work of [Jesse Vincent](https://github.com/obra) and the contributors to [obra/superpowers](https://github.com/obra/superpowers), released under the MIT license. This repository adapts that work for GitHub Copilot. It does not claim authorship of the upstream workflow or skills.
 
@@ -17,15 +19,15 @@ Jesse Vincent's Superpowers skill library, installed into any project as GitHub 
 
 - Ships the 14 upstream skills as plain `SKILL.md` files that Copilot agent mode reads with `read_file`.
 - Installs per project: one marked block in `.github/copilot-instructions.md` plus four prompt files (`/brainstorm`, `/write-plan`, `/execute-plan`, `/debug`).
-- Preserves the guidance a project already has. Re-running the installer updates the block in place, and `-Uninstall` removes only what it added.
+- Keeps the guidance a project already has in `.github/copilot-instructions.md`. Re-running the installer updates the block in place, and uninstall removes the block (trimming leading and trailing whitespace from what remains). The four prompt files are overwritten on install and deleted on uninstall, so a project's own prompts with those names are not preserved.
 - Maps the Claude Code tool names the skills use (`Task`, `TodoWrite`, `Bash`, ...) to Copilot agent-mode tools.
-- Runs a PowerShell test suite in CI on every push and pull request.
+- Runs a PowerShell test suite in CI on pushes to `main` and on pull requests.
 
 It does not install VS Code, enable Copilot, change global Copilot settings, or run a skill by itself.
 
 ## Install
 
-Clone once, then run the installer from the root of each project that should use the skills.
+You need git, PowerShell 7 or Bash, and VS Code with GitHub Copilot Chat in agent mode. Clone once to the default location below, then run the installer from the root of each project that should use the skills.
 
 **Windows (PowerShell 7)**
 
@@ -47,7 +49,7 @@ A real run in a sample project that already had its own instructions: install, r
 
 ![install.ps1 output in a sample project](docs/images/install-ps1.png)
 
-Then start a new Copilot chat in agent mode and try `/brainstorm`, `/write-plan`, `/execute-plan` or `/debug`. GitHub Copilot CLI picks up the same file as a repository instruction source:
+Then start a new Copilot chat in VS Code agent mode and try `/brainstorm`, `/write-plan`, `/execute-plan` or `/debug`. The prompt files and the tool names below target VS Code agent mode. GitHub Copilot CLI also lists the instructions file as a repository instruction source:
 
 ![copilot instruction list showing .github/copilot-instructions.md](docs/images/copilot-instructions-discovered.png)
 
@@ -57,20 +59,20 @@ To remove it from a project, run `install.ps1 -Uninstall` or `install.sh --unins
 
 | Stage | Skill | Use it when |
 | --- | --- | --- |
-| Entry point | `using-superpowers` | Starting any task. It tells the agent how to find and load the other skills. |
-| Design | `brainstorming` | Before building anything. It turns a rough request into a reviewed design. |
-| Isolation | `using-git-worktrees` | Starting feature work that should not touch the current workspace. |
-| Planning | `writing-plans` | You have a spec and need small, testable implementation tasks. |
-| Execution | `executing-plans` | Working through a written plan with review checkpoints. |
-| Execution | `subagent-driven-development` | Running a plan's independent tasks through subagents, with review between tasks. |
-| Execution | `dispatching-parallel-agents` | Two or more tasks have no shared state and can run in parallel. |
-| Implementation | `test-driven-development` | Writing any feature or bug fix. Test first, watch it fail, then make it pass. |
-| Diagnosis | `systematic-debugging` | Any bug, test failure or unexpected behaviour, before proposing a fix. |
-| Evidence | `verification-before-completion` | About to say something is done, fixed or passing. Run the check first. |
-| Review | `requesting-code-review` | A task or feature is complete and needs review before merge. |
-| Review | `receiving-code-review` | Acting on review feedback. Verify it before agreeing with it. |
-| Delivery | `finishing-a-development-branch` | Tests pass and you need to choose merge, PR or clean-up. |
-| Meta | `writing-skills` | Creating or editing a skill and testing that it works. |
+| Entry point | [`using-superpowers`](skills/using-superpowers/SKILL.md) | Starting any task. It tells the agent how to find and load the other skills. |
+| Design | [`brainstorming`](skills/brainstorming/SKILL.md) | Before building anything. It turns a rough request into a reviewed design. |
+| Isolation | [`using-git-worktrees`](skills/using-git-worktrees/SKILL.md) | Starting feature work that should not touch the current workspace. |
+| Planning | [`writing-plans`](skills/writing-plans/SKILL.md) | You have a spec and need small, testable implementation tasks. |
+| Execution | [`executing-plans`](skills/executing-plans/SKILL.md) | Working through a written plan task by task, in a separate session. |
+| Execution | [`subagent-driven-development`](skills/subagent-driven-development/SKILL.md) | Running a plan's independent tasks through subagents, with review between tasks. |
+| Execution | [`dispatching-parallel-agents`](skills/dispatching-parallel-agents/SKILL.md) | Two or more tasks have no shared state and can run in parallel. |
+| Implementation | [`test-driven-development`](skills/test-driven-development/SKILL.md) | Writing any feature or bug fix. Test first, watch it fail, then make it pass. |
+| Diagnosis | [`systematic-debugging`](skills/systematic-debugging/SKILL.md) | Any bug, test failure or unexpected behaviour, before proposing a fix. |
+| Evidence | [`verification-before-completion`](skills/verification-before-completion/SKILL.md) | About to say something is done, fixed or passing. Run the check first. |
+| Review | [`requesting-code-review`](skills/requesting-code-review/SKILL.md) | A task or feature is complete and needs review before merge. |
+| Review | [`receiving-code-review`](skills/receiving-code-review/SKILL.md) | Acting on review feedback. Verify it before agreeing with it. |
+| Delivery | [`finishing-a-development-branch`](skills/finishing-a-development-branch/SKILL.md) | Tests pass and you need to choose merge, PR or clean-up. |
+| Meta | [`writing-skills`](skills/writing-skills/SKILL.md) | Creating or editing a skill and testing that it works. |
 
 Tool names in the skill text are upstream's Claude Code names. Copilot uses these equivalents:
 
@@ -88,7 +90,7 @@ Details and caveats are in [Copilot tools](skills/using-superpowers/references/c
 
 ## What's different from upstream
 
-This repository started from upstream release v5.0.0 (commit `33e55e6`, March 2026).
+This repository started from upstream commit [`33e55e6`](https://github.com/obra/superpowers/commit/33e55e6) (March 2026): release [v5.0.0](https://github.com/obra/superpowers/releases/tag/v5.0.0) plus three commits that changed only upstream's README.
 
 | | Change |
 | --- | --- |
@@ -106,7 +108,7 @@ This repository started from upstream release v5.0.0 (commit `33e55e6`, March 20
 pwsh -NoProfile -File tests/test_repository.ps1
 ```
 
-The suite checks required files, Markdown links and code fences, upstream attribution, both installers' syntax, and install, re-install and uninstall behaviour in a temporary project. CI runs it on `windows-latest`.
+The suite checks required files; Markdown links, code fences and leftover placeholders in the five top-level docs; upstream attribution; both installers' syntax (the Bash check needs Git Bash on Windows and is skipped without it); and the PowerShell installer's install, re-install and uninstall in a temporary project. CI runs it on `windows-latest`. There is no Bash lifecycle test and no macOS or Linux run.
 
 ![Repository test suite: 9 passed, 0 failed](docs/images/test-suite.png)
 
@@ -115,7 +117,8 @@ The suite checks required files, Markdown links and code fences, upstream attrib
 - The skills are instructions, not enforcement. Whether Copilot follows them depends on the model, the tools agent mode exposes, workspace permissions and project context.
 - Some skill text still uses Claude Code terms (for example "Task tool" or "Skill tool"). The installed block and the mapping above translate them; the skills themselves are kept close to upstream on purpose.
 - The brainstorming skill's optional visual companion (`skills/brainstorming/visual-companion.md`) refers to a browser server under `lib/` that this adaptation does not ship, so that option does not work here.
-- The installed block points at the clone's skill paths. Moving or deleting the clone breaks them until you re-run the installer.
+- The installed block points at the clone's skill paths. Cloned anywhere other than `~/.copilot/superpowers`, it writes that machine's absolute path into the project's `.github/copilot-instructions.md`, and the prompt files still look in `~/.copilot/superpowers` or the workspace. Use the default location, especially if the file is committed for a team. Moving or deleting the clone breaks the paths until you re-run the installer.
+- `requesting-code-review` asks for a named `superpowers:code-reviewer` subagent, whose upstream definition is not shipped here. In Copilot, fill the skill's [`code-reviewer.md`](skills/requesting-code-review/code-reviewer.md) template and pass it to a generic `runSubagent` call.
 - Upstream has released newer versions since v5.0.0. Changes from them are not merged here yet.
 
 ## Contributing, security and license

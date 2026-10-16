@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300" role="img" aria-labelledby="t d">
 <title id="t">Superpowers workflow</title>
-<desc id="d">Six skills in order: brainstorming, writing-plans, test-driven-development, systematic-debugging, verification-before-completion, requesting-code-review. A dashed arrow loops from systematic-debugging back to test-driven-development.</desc>
+<desc id="d">An illustrative path through six skills: brainstorming, writing-plans, test-driven-development, systematic-debugging, verification-before-completion, requesting-code-review. A dashed arrow loops from systematic-debugging back to test-driven-development.</desc>
 <defs>
 <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8c959f"/></marker>
 <marker id="l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9a6700"/></marker>
