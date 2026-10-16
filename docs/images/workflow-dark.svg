@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300" role="img" aria-labelledby="t d">
+<title id="t">Superpowers workflow</title>
+<desc id="d">Six skills in order: brainstorming, writing-plans, test-driven-development, systematic-debugging, verification-before-completion, requesting-code-review. A dashed arrow loops from systematic-debugging back to test-driven-development.</desc>
+<defs>
+<marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6e7681"/></marker>
+<marker id="l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#d29922"/></marker>
+</defs>
+<rect x="11" y="12" width="178" height="156" rx="10" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+<circle cx="35" cy="37" r="13" fill="#0d2a4a"/>
+<text x="35" y="42" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#4493f8">1</text>
+<text x="100" y="78" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="23" font-weight="600" fill="#e6edf3">Brainstorm</text>
+<text x="100" y="115" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, &quot;Liberation Mono&quot;, monospace" font-size="14" fill="#79c0ff">brainstorming</text>
+<text x="100" y="152" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="14.5" fill="#9198a1">reviewed design</text>
+<line x1="192" y1="90.0" x2="208" y2="90.0" stroke="#6e7681" stroke-width="2" marker-end="url(#a)"/>
+<rect x="211" y="12" width="178" height="156" rx="10" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+<circle cx="235" cy="37" r="13" fill="#0d2a4a"/>
+<text x="235" y="42" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#4493f8">2</text>
+<text x="300" y="78" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="23" font-weight="600" fill="#e6edf3">Plan</text>
+<text x="300" y="115" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, &quot;Liberation Mono&quot;, monospace" font-size="14" fill="#79c0ff">writing-plans</text>
+<text x="300" y="152" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="14.5" fill="#9198a1">testable tasks</text>
+<line x1="392" y1="90.0" x2="408" y2="90.0" stroke="#6e7681" stroke-width="2" marker-end="url(#a)"/>
+<rect x="411" y="12" width="178" height="156" rx="10" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+<circle cx="435" cy="37" r="13" fill="#0d2a4a"/>
+<text x="435" y="42" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#4493f8">3</text>
+<text x="500" y="78" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="23" font-weight="600" fill="#e6edf3">TDD</text>
+<text x="500" y="106" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, &quot;Liberation Mono&quot;, monospace" font-size="14" fill="#79c0ff">test-driven-</text>
+<text x="500" y="124" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, &quot;Liberation Mono&quot;, monospace" font-size="14" fill="#79c0ff">development</text>
+<text x="500" y="152" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="14.5" fill="#9198a1">red, green, refactor</text>
+<line x1="592" y1="90.0" x2="608" y2="90.0" stroke="#6e7681" stroke-width="2" marker-end="url(#a)"/>
+<rect x="611" y="12" width="178" height="156" rx="10" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+<circle cx="635" cy="37" r="13" fill="#0d2a4a"/>
+<text x="635" y="42" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#4493f8">4</text>
+<text x="700" y="78" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="23" font-weight="600" fill="#e6edf3">Debug</text>
+<text x="700" y="106" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, &quot;Liberation Mono&quot;, monospace" font-size="14" fill="#79c0ff">systematic-</text>
+<text x="700" y="124" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, &quot;Liberation Mono&quot;, monospace" font-size="14" fill="#79c0ff">debugging</text>
+<text x="700" y="152" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="14.5" fill="#9198a1">root cause first</text>
+<line x1="792" y1="90.0" x2="808" y2="90.0" stroke="#6e7681" stroke-width="2" marker-end="url(#a)"/>
+<rect x="811" y="12" width="178" height="156" rx="10" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+<circle cx="835" cy="37" r="13" fill="#0d2a4a"/>
+<text x="835" y="42" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#4493f8">5</text>
+<text x="900" y="78" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="23" font-weight="600" fill="#e6edf3">Verify</text>
+<text x="900" y="106" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, &quot;Liberation Mono&quot;, monospace" font-size="14" fill="#79c0ff">verification-</text>
+<text x="900" y="124" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, &quot;Liberation Mono&quot;, monospace" font-size="14" fill="#79c0ff">before-completion</text>
+<text x="900" y="152" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="14.5" fill="#9198a1">fresh evidence</text>
+<line x1="992" y1="90.0" x2="1008" y2="90.0" stroke="#6e7681" stroke-width="2" marker-end="url(#a)"/>
+<rect x="1011" y="12" width="178" height="156" rx="10" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+<circle cx="1035" cy="37" r="13" fill="#0d2a4a"/>
+<text x="1035" y="42" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#4493f8">6</text>
+<text x="1100" y="78" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="23" font-weight="600" fill="#e6edf3">Review</text>
+<text x="1100" y="106" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, &quot;Liberation Mono&quot;, monospace" font-size="14" fill="#79c0ff">requesting-</text>
+<text x="1100" y="124" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, &quot;Liberation Mono&quot;, monospace" font-size="14" fill="#79c0ff">code-review</text>
+<text x="1100" y="152" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="14.5" fill="#9198a1">then respond</text>
+<path d="M700,172 C700,228 500,228 500,176" fill="none" stroke="#d29922" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#l)"/>
+<text x="600" y="244" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="15" fill="#9198a1">failing test: regression test, then back to red-green</text>
+<text x="600" y="288" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="15" fill="#9198a1">Each stage is a SKILL.md that Copilot agent mode reads with read_file when the task calls for it.</text>
+</svg>
