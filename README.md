@@ -19,7 +19,7 @@ This repository adds the Copilot layer: project-scoped installers for PowerShell
 
 - Ships the 14 upstream skills as plain `SKILL.md` files that Copilot agent mode reads with `read_file`.
 - Installs per project: one marked block in `.github/copilot-instructions.md` plus four prompt files (`/brainstorm`, `/write-plan`, `/execute-plan`, `/debug`).
-- Keeps the guidance a project already has in `.github/copilot-instructions.md`. Re-running the installer updates the block in place, and uninstall removes the block (trimming leading and trailing whitespace from what remains). The four prompt files are overwritten on install and deleted on uninstall, so a project's own prompts with those names are not preserved.
+- Keeps the guidance a project already has in `.github/copilot-instructions.md`. Re-running the installer updates the block in place, and uninstall removes the block (trimming leading and trailing whitespace from what remains). Prompt files are ownership-aware: the installer records what it wrote in `.github/prompts/.superpowers-manifest` (SHA-256 per file). It never overwrites a same-named prompt it did not create, and uninstall deletes only prompts it installed and you have not edited. A prompt you changed after install is kept, and so is any prompt that differs from what was installed.
 - Maps the Claude Code tool names the skills use (`Task`, `TodoWrite`, `Bash`, ...) to Copilot agent-mode tools.
 - Runs a PowerShell test suite in CI on pushes to `main` and on pull requests.
 
@@ -106,6 +106,7 @@ This repository started from upstream commit [`33e55e6`](https://github.com/obra
 
 ```powershell
 pwsh -NoProfile -File tests/test_repository.ps1
+bash tests/test_install.sh
 ```
 
 The suite checks required files; Markdown links, code fences and leftover placeholders in the five top-level docs; upstream attribution; both installers' syntax (the Bash check needs Git Bash on Windows and is skipped without it); and the PowerShell installer's install, re-install and uninstall in a temporary project. CI runs it on `windows-latest`. There is no Bash lifecycle test and no macOS or Linux run.

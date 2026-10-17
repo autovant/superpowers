@@ -24,9 +24,30 @@ fi
 GITHUB_DIR="$PROJECT_ROOT/.github"
 PROMPTS_DIR="$GITHUB_DIR/prompts"
 INSTRUCTIONS_FILE="$GITHUB_DIR/copilot-instructions.md"
+# Records every prompt file this installer wrote ("<sha256>  <name>"), so
+# install and uninstall only touch files Superpowers owns.
+MANIFEST="$PROMPTS_DIR/.superpowers-manifest"
 
 START_MARKER='<!-- SUPERPOWERS:START -->'
 END_MARKER='<!-- SUPERPOWERS:END -->'
+
+file_hash() {
+    if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1" | cut -d' ' -f1
+    else shasum -a 256 "$1" | cut -d' ' -f1; fi
+}
+
+# Hash recorded for a prompt name in the manifest (empty when not owned).
+manifest_hash() {
+    [ -f "$MANIFEST" ] || return 0
+    awk -v n="$1" '$2 == n { print $1 }' "$MANIFEST"
+}
+
+manifest_set() { # name hash
+    local tmp="$MANIFEST.tmp"
+    { [ -f "$MANIFEST" ] && awk -v n="$1" '$2 != n' "$MANIFEST"; printf '%s  %s
+' "$2" "$1"; } > "$tmp"
+    mv "$tmp" "$MANIFEST"
+}
 
 generate_block() {
     cat <<BLOCK
@@ -114,9 +135,29 @@ install_superpowers() {
     SOURCE_PROMPTS="$SUPERPOWERS_ROOT/.copilot/prompts"
     if [ -d "$SOURCE_PROMPTS" ]; then
         mkdir -p "$PROMPTS_DIR"
-        cp "$SOURCE_PROMPTS"/*.prompt.md "$PROMPTS_DIR/"
-        count=$(ls -1 "$PROMPTS_DIR"/*.prompt.md 2>/dev/null | wc -l)
-        echo "  Copied $count prompt files to .github/prompts/"
+        installed=0; kept=0
+        for src in "$SOURCE_PROMPTS"/*.prompt.md; do
+            name="$(basename "$src")"
+            dest="$PROMPTS_DIR/$name"
+            src_hash="$(file_hash "$src")"
+            if [ ! -e "$dest" ]; then
+                cp "$src" "$dest"; manifest_set "$name" "$src_hash"; installed=$((installed + 1))
+                continue
+            fi
+            dest_hash="$(file_hash "$dest")"
+            owned_hash="$(manifest_hash "$name")"
+            if [ "$dest_hash" = "$src_hash" ]; then
+                # Identical to ours: adopt it (covers installs made before the manifest existed).
+                manifest_set "$name" "$src_hash"; installed=$((installed + 1))
+            elif [ -n "$owned_hash" ] && [ "$owned_hash" = "$dest_hash" ]; then
+                # Ours and unmodified: refresh to the current version.
+                cp "$src" "$dest"; manifest_set "$name" "$src_hash"; installed=$((installed + 1))
+            else
+                echo "  Kept existing .github/prompts/$name (not installed by Superpowers, or edited since)"
+                kept=$((kept + 1))
+            fi
+        done
+        echo "  Installed $installed prompt files to .github/prompts/ (kept $kept existing)"
     fi
 
     echo ""
@@ -152,13 +193,25 @@ uninstall_superpowers() {
         fi
     fi
 
-    # Remove prompt files
+    # Remove only the prompt files this installer owns and the user has not edited.
+    SOURCE_PROMPTS="$SUPERPOWERS_ROOT/.copilot/prompts"
     for f in brainstorm.prompt.md write-plan.prompt.md execute-plan.prompt.md debug.prompt.md; do
-        if [ -f "$PROMPTS_DIR/$f" ]; then
-            rm "$PROMPTS_DIR/$f"
+        path="$PROMPTS_DIR/$f"
+        [ -f "$path" ] || continue
+        owned_hash="$(manifest_hash "$f")"
+        current="$(file_hash "$path")"
+        # No manifest entry (pre-manifest install): owned only if identical to our copy.
+        if [ -z "$owned_hash" ] && [ -f "$SOURCE_PROMPTS/$f" ]; then
+            owned_hash="$(file_hash "$SOURCE_PROMPTS/$f")"
+        fi
+        if [ -n "$owned_hash" ] && [ "$owned_hash" = "$current" ]; then
+            rm "$path"
             echo "  Removed .github/prompts/$f"
+        else
+            echo "  Kept .github/prompts/$f (not installed by Superpowers, or edited since)"
         fi
     done
+    rm -f "$MANIFEST" "$MANIFEST.tmp"
 
     # Clean up empty directories
     [ -d "$PROMPTS_DIR" ] && rmdir "$PROMPTS_DIR" 2>/dev/null || true
