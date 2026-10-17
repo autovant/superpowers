@@ -81,7 +81,7 @@ cd ~/.copilot/superpowers
 git pull --ff-only
 ```
 
-Re-running the installer refreshes the managed instruction block and prompt files.
+Re-running the installer refreshes the managed instruction block and the prompt files it installed. The installer records those in `.github/prompts/.superpowers-manifest`; a same-named prompt it did not create, or an installed prompt you edited, is kept and reported rather than overwritten.
 
 ## Uninstall From a Project
 
@@ -97,6 +97,6 @@ macOS or Linux:
 ~/.copilot/superpowers/install.sh --uninstall
 ```
 
-Uninstall removes the managed Superpowers block and the four copied prompt files. It preserves other project instructions and files.
+Uninstall removes the managed Superpowers block and the prompt files it installed, but only if you have not edited them; edited prompts and same-named prompts it did not create are kept and reported. It preserves other project instructions and files.
 
 Deleting the cloned repository is a separate, optional cleanup step and should be done only after no projects depend on its skill paths.
