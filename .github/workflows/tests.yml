@@ -31,3 +31,7 @@ jobs:
       - name: Run repository test suite
         shell: pwsh
         run: ./tests/test_repository.ps1
+
+      - name: Run Bash installer lifecycle test
+        shell: bash
+        run: bash tests/test_install.sh

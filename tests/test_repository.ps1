@@ -142,6 +142,25 @@ try {
     finally {
         Pop-Location
     }
+
+    # Ownership: a project's own same-named prompt is neither overwritten nor deleted,
+    # and an installed prompt the user edited survives uninstall.
+    $ownRoot = Join-Path $tempRoot 'ownership'
+    $ownPrompts = Join-Path $ownRoot '.github\prompts'
+    $null = New-Item -ItemType Directory -Path $ownPrompts -Force
+    Set-Content -LiteralPath (Join-Path $ownPrompts 'debug.prompt.md') -Value 'MY OWN DEBUG PROMPT' -NoNewline
+    Push-Location $ownRoot
+    try {
+        & (Join-Path $repositoryRoot 'install.ps1') *> $null
+        $keptOnInstall = (Get-Content -LiteralPath (Join-Path $ownPrompts 'debug.prompt.md') -Raw) -eq 'MY OWN DEBUG PROMPT'
+        Add-Content -LiteralPath (Join-Path $ownPrompts 'brainstorm.prompt.md') -Value 'EDITED' -NoNewline
+        & (Join-Path $repositoryRoot 'install.ps1') -Uninstall *> $null
+        $leftNames = @(Get-ChildItem -LiteralPath $ownPrompts -Filter '*.prompt.md' | ForEach-Object Name | Sort-Object)
+        Write-TestResult -Name 'PowerShell installer keeps prompts it does not own' -Succeeded ($keptOnInstall -and ($leftNames -join ',') -eq 'brainstorm.prompt.md,debug.prompt.md') -Detail "keptOnInstall=$keptOnInstall left=$($leftNames -join ',')"
+    }
+    finally {
+        Pop-Location
+    }
 }
 finally {
     $resolvedParent = [System.IO.Path]::GetFullPath($tempParent)

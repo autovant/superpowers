@@ -37,6 +37,9 @@ $ProjectRoot = Get-Location
 $GithubDir = Join-Path $ProjectRoot '.github'
 $PromptsDir = Join-Path $GithubDir 'prompts'
 $InstructionsFile = Join-Path $GithubDir 'copilot-instructions.md'
+# Records every prompt file this installer wrote ("<sha256>  <name>"), so install
+# and uninstall only touch files Superpowers owns. Same format as install.sh.
+$ManifestFile = Join-Path $PromptsDir '.superpowers-manifest'
 
 $StartMarker = '<!-- SUPERPOWERS:START -->'
 $EndMarker = '<!-- SUPERPOWERS:END -->'
@@ -92,6 +95,26 @@ Full mapping: $SkillsPrefix/using-superpowers/references/copilot-tools.md
 $EndMarker
 "@
 
+function Get-FileSha256([string]$Path) {
+    (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant()
+}
+
+function Read-Manifest {
+    $map = @{}
+    if (Test-Path -LiteralPath $ManifestFile) {
+        foreach ($line in Get-Content -LiteralPath $ManifestFile) {
+            if ($line -match '^([0-9a-f]{64})\s+(.+)$') { $map[$Matches[2]] = $Matches[1] }
+        }
+    }
+    return $map
+}
+
+function Write-Manifest([hashtable]$Map) {
+    $lines = @($Map.Keys | Sort-Object | ForEach-Object { '{0}  {1}' -f $Map[$_], $_ })
+    if ($lines.Count -eq 0) { return }
+    Set-Content -LiteralPath $ManifestFile -Value (($lines -join "`n") + "`n") -NoNewline
+}
+
 function Install-Superpowers {
     Write-Host "Installing Superpowers into: $ProjectRoot" -ForegroundColor Cyan
 
@@ -128,9 +151,36 @@ function Install-Superpowers {
         if (-not (Test-Path $PromptsDir)) {
             New-Item -ItemType Directory -Path $PromptsDir -Force | Out-Null
         }
-        Copy-Item "$SourcePrompts\*.prompt.md" $PromptsDir -Force
-        $count = (Get-ChildItem "$PromptsDir\*.prompt.md" | Measure-Object).Count
-        Write-Host "  Copied $count prompt files to .github/prompts/" -ForegroundColor Green
+        $manifest = Read-Manifest
+        $installed = 0
+        $kept = 0
+        foreach ($src in Get-ChildItem -LiteralPath $SourcePrompts -Filter '*.prompt.md') {
+            $name = $src.Name
+            $dest = Join-Path $PromptsDir $name
+            $srcHash = Get-FileSha256 $src.FullName
+            if (-not (Test-Path -LiteralPath $dest)) {
+                Copy-Item -LiteralPath $src.FullName -Destination $dest
+                $manifest[$name] = $srcHash
+                $installed++
+                continue
+            }
+            $destHash = Get-FileSha256 $dest
+            if ($destHash -eq $srcHash) {
+                # Identical to ours: adopt it (covers installs made before the manifest existed).
+                $manifest[$name] = $srcHash
+                $installed++
+            } elseif ($manifest.ContainsKey($name) -and $manifest[$name] -eq $destHash) {
+                # Ours and unmodified: refresh to the current version.
+                Copy-Item -LiteralPath $src.FullName -Destination $dest -Force
+                $manifest[$name] = $srcHash
+                $installed++
+            } else {
+                Write-Host "  Kept existing .github/prompts/$name (not installed by Superpowers, or edited since)" -ForegroundColor DarkGray
+                $kept++
+            }
+        }
+        Write-Manifest $manifest
+        Write-Host "  Installed $installed prompt files to .github/prompts/ (kept $kept existing)" -ForegroundColor Green
     }
 
     Write-Host "`nSuperpowers installed! Start a new Copilot chat to use them." -ForegroundColor Cyan
@@ -159,15 +209,26 @@ function Uninstall-Superpowers {
         }
     }
 
-    # Remove prompt files
+    # Remove only the prompt files this installer owns and the user has not edited.
+    $manifest = Read-Manifest
+    $SourcePrompts = Join-Path $SuperpowersRoot '.copilot\prompts'
     $promptFiles = @('brainstorm.prompt.md', 'write-plan.prompt.md', 'execute-plan.prompt.md', 'debug.prompt.md')
     foreach ($f in $promptFiles) {
         $path = Join-Path $PromptsDir $f
-        if (Test-Path $path) {
-            Remove-Item $path
+        if (-not (Test-Path -LiteralPath $path)) { continue }
+        $owned = $manifest[$f]
+        # No manifest entry (pre-manifest install): owned only if identical to our copy.
+        if (-not $owned -and (Test-Path -LiteralPath (Join-Path $SourcePrompts $f))) {
+            $owned = Get-FileSha256 (Join-Path $SourcePrompts $f)
+        }
+        if ($owned -and $owned -eq (Get-FileSha256 $path)) {
+            Remove-Item -LiteralPath $path
             Write-Host "  Removed .github/prompts/$f" -ForegroundColor Yellow
+        } else {
+            Write-Host "  Kept .github/prompts/$f (not installed by Superpowers, or edited since)" -ForegroundColor DarkGray
         }
     }
+    if (Test-Path -LiteralPath $ManifestFile) { Remove-Item -LiteralPath $ManifestFile }
 
     # Clean up empty directories
     if ((Test-Path $PromptsDir) -and (Get-ChildItem $PromptsDir | Measure-Object).Count -eq 0) {
