@@ -109,7 +109,7 @@ pwsh -NoProfile -File tests/test_repository.ps1
 bash tests/test_install.sh
 ```
 
-The suite checks required files; Markdown links, code fences and leftover placeholders in the five top-level docs; upstream attribution; both installers' syntax (the Bash check needs Git Bash on Windows and is skipped without it); and the PowerShell installer's install, re-install and uninstall in a temporary project. CI runs it on `windows-latest`. There is no Bash lifecycle test and no macOS or Linux run.
+The suite checks required files; Markdown links, code fences and leftover placeholders in the five top-level docs; upstream attribution; both installers' syntax (the Bash check needs Git Bash on Windows and is skipped without it); and the PowerShell installer's install, re-install, uninstall and prompt-ownership behaviour in temporary projects. `tests/test_install.sh` runs the same lifecycle and ownership checks against `install.sh`. CI runs both on `windows-latest`; there is no macOS or Linux run.
 
 ![Repository test suite: 9 passed, 0 failed](docs/images/test-suite.png)
 
