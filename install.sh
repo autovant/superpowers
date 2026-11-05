@@ -112,6 +112,10 @@ install_superpowers() {
 
     if [ -f "$INSTRUCTIONS_FILE" ]; then
         if grep -qF "$START_MARKER" "$INSTRUCTIONS_FILE"; then
+            if ! grep -qF "$END_MARKER" "$INSTRUCTIONS_FILE"; then
+                echo "Error: $INSTRUCTIONS_FILE has the Superpowers start marker but no end marker; refusing to update it. Add '$END_MARKER' after the block (or remove the start marker) and re-run." >&2
+                exit 1
+            fi
             # Replace existing block
             # Use awk to replace between markers
             awk -v block="$BLOCK" -v start="$START_MARKER" -v end="$END_MARKER" '
@@ -171,6 +175,10 @@ uninstall_superpowers() {
     # Remove superpowers block from copilot-instructions.md
     if [ -f "$INSTRUCTIONS_FILE" ]; then
         if grep -qF "$START_MARKER" "$INSTRUCTIONS_FILE"; then
+            if ! grep -qF "$END_MARKER" "$INSTRUCTIONS_FILE"; then
+                echo "Error: $INSTRUCTIONS_FILE has the Superpowers start marker but no end marker; refusing to uninstall. Add '$END_MARKER' after the block (or remove the start marker) and re-run." >&2
+                exit 1
+            fi
             awk -v start="$START_MARKER" -v end="$END_MARKER" '
                 $0 ~ start { skip=1; next }
                 $0 ~ end { skip=0; next }

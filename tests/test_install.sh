@@ -67,5 +67,35 @@ printf 'MINE' > "$P5/.github/prompts/debug.prompt.md"
 run_uninstall "$P5"
 check "legacy uninstall removes identical copies and keeps different ones"     test "$(count_prompts "$P5")" = 1 -a "$(cat "$P5/.github/prompts/debug.prompt.md")" = MINE
 
+# --- 6. start marker without end marker: abort, keep later content ----------
+TRUNC=$'Head.\n<!-- SUPERPOWERS:START -->\nhand edited\nLater project instructions.\n'
+P6="$TMP/p6"; mkdir -p "$P6/.github"
+printf '%s' "$TRUNC" > "$P6/.github/copilot-instructions.md"
+run_install "$P6"; rc=$?
+check "install aborts when the end marker is missing" test "$rc" -ne 0
+check "install leaves a file with no end marker unchanged" \
+    test "$(cat "$P6/.github/copilot-instructions.md")" = "${TRUNC%$'\n'}"
+P7="$TMP/p7"; mkdir -p "$P7/.github"
+printf '%s' "$TRUNC" > "$P7/.github/copilot-instructions.md"
+run_uninstall "$P7"; rc=$?
+check "uninstall aborts when the end marker is missing" test "$rc" -ne 0
+check "uninstall leaves a file with no end marker unchanged" \
+    test "$(cat "$P7/.github/copilot-instructions.md")" = "${TRUNC%$'\n'}"
+
+# --- 7. both markers present: update and uninstall still work ---------------
+P8="$TMP/p8"; mkdir -p "$P8/.github"
+printf 'Head.\n' > "$P8/.github/copilot-instructions.md"
+run_install "$P8"
+sed -i 's/^Head\.$/Head changed./' "$P8/.github/copilot-instructions.md"
+printf '\nTail.\n' >>"$P8/.github/copilot-instructions.md"
+run_install "$P8"
+f8="$P8/.github/copilot-instructions.md"
+check "update with both markers keeps surrounding text and one block" \
+    test "$(grep -c 'SUPERPOWERS:START' "$f8")" = 1 -a "$(grep -c 'SUPERPOWERS:END' "$f8")" = 1 \
+    -a "$(head -1 "$f8")" = 'Head changed.' -a "$(tail -1 "$f8")" = 'Tail.'
+run_uninstall "$P8"
+check "uninstall with both markers removes the block and keeps the rest" \
+    test "$(grep -c 'SUPERPOWERS' "$f8")" = 0 -a "$(head -1 "$f8")" = 'Head changed.' -a "$(tail -1 "$f8")" = 'Tail.'
+
 echo "RESULT: $passed passed, $failed failed"
 [ "$failed" -eq 0 ]
