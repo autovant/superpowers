@@ -97,5 +97,26 @@ run_uninstall "$P8"
 check "uninstall with both markers removes the block and keeps the rest" \
     test "$(grep -c 'SUPERPOWERS' "$f8")" = 0 -a "$(head -1 "$f8")" = 'Head changed.' -a "$(tail -1 "$f8")" = 'Tail.'
 
+# --- 8. no-change repeat versus a real block update -----------------------
+P9="$TMP/p9"; mkdir -p "$P9"
+run_install "$P9"
+f9="$P9/.github/copilot-instructions.md"
+cp "$f9" "$TMP/before-repeat.md"
+repeat_output=$(cd "$P9" && bash "$ROOT/install.sh"); rc=$?
+check "repeat install exits successfully" test "$rc" = 0
+check "repeat install leaves instruction bytes unchanged" cmp -s "$f9" "$TMP/before-repeat.md"
+check "repeat install reports unchanged content" \
+    test "$(printf '%s\n' "$repeat_output" | grep -c '^  Unchanged superpowers block in copilot-instructions.md$')" = 1 \
+    -a "$(printf '%s\n' "$repeat_output" | grep -c '^  Updated superpowers block')" = 0
+if [[ "$repeat_output" != *'Unchanged superpowers block'* ]]; then
+    printf '%s\n' "$repeat_output"
+fi
+sed -i 's/^## Superpowers$/## SUPERPOWERS/' "$f9"
+update_output=$(cd "$P9" && bash "$ROOT/install.sh"); rc=$?
+check "changed block install exits successfully" test "$rc" = 0
+check "changed block install reports updated content" \
+    test "$(printf '%s\n' "$update_output" | grep -c '^  Updated superpowers block in copilot-instructions.md$')" = 1
+check "changed block install restores current instructions" cmp -s "$f9" "$TMP/before-repeat.md"
+
 echo "RESULT: $passed passed, $failed failed"
 [ "$failed" -eq 0 ]

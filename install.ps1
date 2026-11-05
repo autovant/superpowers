@@ -132,9 +132,13 @@ function Install-Superpowers {
         if ($content -match [regex]::Escape($StartMarker)) {
             # Replace existing superpowers block
             $pattern = [regex]::Escape($StartMarker) + '[\s\S]*?' + [regex]::Escape($EndMarker)
-            $content = [regex]::Replace($content, $pattern, $InstructionsBlock)
-            Set-Content -Path $InstructionsFile -Value $content -NoNewline
-            Write-Host "  Updated superpowers block in copilot-instructions.md" -ForegroundColor Green
+            $updatedContent = [regex]::Replace($content, $pattern, $InstructionsBlock)
+            if ($updatedContent -ceq $content) {
+                Write-Host "  Unchanged superpowers block in copilot-instructions.md" -ForegroundColor DarkGray
+            } else {
+                Set-Content -Path $InstructionsFile -Value $updatedContent -NoNewline
+                Write-Host "  Updated superpowers block in copilot-instructions.md" -ForegroundColor Green
+            }
         } else {
             # Append to existing file
             Add-Content -Path $InstructionsFile -Value "`n`n$InstructionsBlock"

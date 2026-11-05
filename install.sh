@@ -123,8 +123,13 @@ install_superpowers() {
                 $0 ~ end { skip=0; next }
                 !skip { print }
             ' "$INSTRUCTIONS_FILE" > "${INSTRUCTIONS_FILE}.tmp"
-            mv "${INSTRUCTIONS_FILE}.tmp" "$INSTRUCTIONS_FILE"
-            echo "  Updated superpowers block in copilot-instructions.md"
+            if cmp -s "${INSTRUCTIONS_FILE}.tmp" "$INSTRUCTIONS_FILE"; then
+                rm "${INSTRUCTIONS_FILE}.tmp"
+                echo "  Unchanged superpowers block in copilot-instructions.md"
+            else
+                mv "${INSTRUCTIONS_FILE}.tmp" "$INSTRUCTIONS_FILE"
+                echo "  Updated superpowers block in copilot-instructions.md"
+            fi
         else
             # Append to existing file
             printf '\n\n%s' "$BLOCK" >> "$INSTRUCTIONS_FILE"
