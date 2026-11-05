@@ -124,11 +124,24 @@ try {
     Push-Location $tempRoot
     try {
         & (Join-Path $repositoryRoot 'install.ps1') *> $null
-        & (Join-Path $repositoryRoot 'install.ps1') *> $null
+        $beforeRepeat = (Get-FileHash -LiteralPath $instructionsPath).Hash
+        $repeatOutput = (& (Join-Path $repositoryRoot 'install.ps1') 6>&1 | Out-String)
+        Write-TestResult -Name 'PowerShell repeat install reports unchanged content' -Succeeded (
+            $repeatOutput.Contains('Unchanged superpowers block in copilot-instructions.md') -and
+            -not $repeatOutput.Contains('Updated superpowers block') -and
+            (Get-FileHash -LiteralPath $instructionsPath).Hash -eq $beforeRepeat
+        ) -Detail $repeatOutput.Trim()
         $installedContent = Get-Content -LiteralPath $instructionsPath -Raw
         $startMarkerCount = ([regex]::Matches($installedContent, '<!-- SUPERPOWERS:START -->')).Count
         $promptCount = @(Get-ChildItem -LiteralPath (Join-Path $tempRoot '.github\prompts') -Filter '*.prompt.md').Count
         Write-TestResult -Name 'PowerShell installer is idempotent and copies four prompts' -Succeeded ($startMarkerCount -eq 1 -and $promptCount -eq 4) -Detail "markers=$startMarkerCount prompts=$promptCount"
+
+        Set-Content -LiteralPath $instructionsPath -Value ($installedContent.Replace('## Superpowers', '## SUPERPOWERS')) -NoNewline
+        $updateOutput = (& (Join-Path $repositoryRoot 'install.ps1') 6>&1 | Out-String)
+        Write-TestResult -Name 'PowerShell install reports and restores a changed block' -Succeeded (
+            $updateOutput.Contains('Updated superpowers block in copilot-instructions.md') -and
+            (Get-Content -LiteralPath $instructionsPath -Raw) -ceq $installedContent
+        ) -Detail $updateOutput.Trim()
 
         & (Join-Path $repositoryRoot 'install.ps1') -Uninstall *> $null
         $uninstalledContent = Get-Content -LiteralPath $instructionsPath -Raw
